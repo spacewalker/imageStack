@@ -10,7 +10,7 @@
  * @param int $angle
  * @return true
  */
-function imagickStack($images, $width = 300, $height = 200, $angle = 30)
+function imagickStack($images, $width = 300, $height = 200, $angle = 30, $opacity = 0, $backcolor = 'black', $format = 'png')
 {
     $items = count($images);
 
@@ -32,8 +32,8 @@ function imagickStack($images, $width = 300, $height = 200, $angle = 30)
         $image_height = max($imagick[$i]->getImageHeight(), $imagick[$i+1]->getImageHeight());
 
         $back = new Imagick();
-        $back->newPseudoImage($image_width, $image_height, "xc:black");
-        $back->setImageOpacity(0);
+        $back->newPseudoImage($image_width, $image_height, "xc:".$backcolor);
+        $back->setImageOpacity($opacity);
 
         $back->setImageColorspace($imagick[$i]->getImageColorspace());
         $back->compositeImage(
@@ -54,7 +54,7 @@ function imagickStack($images, $width = 300, $height = 200, $angle = 30)
         $imagick[$i+1] = $back;
     }
     $back->scaleImage($width, $height, true);
-    $back->writeImage('final.png');
+    $back->writeImage('final.'.$format);
     $back->clear();
     $back->destroy();
 
@@ -73,5 +73,6 @@ $images = array(
     'my8.jpg',
     'my9.jpg'
     );
+shuffle($images);
 
-imagickStack($images, 400, 300);
+imagickStack($images, 258, 193, 30, 0, 'white', 'png');
