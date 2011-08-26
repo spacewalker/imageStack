@@ -14,46 +14,46 @@ function imagickStack($images, $width = 300, $height = 200, $angle = 30)
 {
     $items = count($images);
 
-    for ($i = 0; $i < $items; $i++) {
-        $imagick[$i] = new Imagick();
-        $imagick[$i]->readImage($images[$i]);
-        $imagick[$i]->rotateImage(new ImagickPixel('none'), mt_rand(-$angle, $angle));
-        $imagick[$i]->scaleImage($width, $height, true);
-//        $imagick->writeImage('final'.$i.'.png');
-//        $imagick->clear();
-//        $imagick->destroy();
-    }
+    $imagick[0] = new Imagick();
+    $imagick[0]->readImage($images[0]);
+    $imagick[0]->scaleImage($width, $height, true);
+    $imagick[0]->rotateImage(
+        new ImagickPixel('none'),
+        !mt_rand(-$angle, $angle)?mt_rand(-$angle, $angle)+$angle/2:mt_rand(-$angle, $angle)
+    );
 
     for ($i = 0; $i < $items-1; $i++) {
+        $imagick[$i+1] = new Imagick();
+        $imagick[$i+1]->readImage($images[$i+1]);
+        $imagick[$i+1]->scaleImage($width, $height, true);
+        $imagick[$i+1]->rotateImage(new ImagickPixel('none'), mt_rand(-$angle, $angle));
 
-        $images[$i] = $imagick[$i];
-        $images[$i+1] = $imagick[$i+1];
-        $width = max($images[$i]->getImageWidth(), $images[$i+1]->getImageWidth());
-        $height = max($images[$i]->getImageHeight(), $images[$i+1]->getImageHeight());
+        $image_width = max($imagick[$i]->getImageWidth(), $imagick[$i+1]->getImageWidth());
+        $image_height = max($imagick[$i]->getImageHeight(), $imagick[$i+1]->getImageHeight());
+
         $back = new Imagick();
-        $back->newPseudoImage($width, $height, "xc:black");
+        $back->newPseudoImage($image_width, $image_height, "xc:black");
         $back->setImageOpacity(0);
 
-        $back->setImageColorspace($images[$i]->getImageColorspace());
+        $back->setImageColorspace($imagick[$i]->getImageColorspace());
         $back->compositeImage(
-            $images[$i],
-            $images[$i]->getImageCompose(),
-            ($width - $images[$i]->getImageWidth()) / 2,
-            ($height - $images[$i]->getImageHeight()) / 2
+            $imagick[$i],
+            $imagick[$i]->getImageCompose(),
+            ($image_width - $imagick[$i]->getImageWidth()) / 2,
+            ($image_height - $imagick[$i]->getImageHeight()) / 2
         );
 
-        $back->setImageColorspace($images[$i+1]->getImageColorspace());
+        $back->setImageColorspace($imagick[$i+1]->getImageColorspace());
         $back->compositeImage(
-            $images[$i+1],
-            $images[$i+1]->getImageCompose(),
-            ($width - $images[$i+1]->getImageWidth()) / 2,
-            ($height - $images[$i+1]->getImageHeight()) / 2
+            $imagick[$i+1],
+            $imagick[$i+1]->getImageCompose(),
+            ($image_width - $imagick[$i+1]->getImageWidth()) / 2,
+            ($image_height - $imagick[$i+1]->getImageHeight()) / 2
         );
 
         $imagick[$i+1] = $back;
-        $images[$i]->clear();
-        $images[$i]->destroy();
     }
+    $back->scaleImage($width, $height, true);
     $back->writeImage('final.png');
     $back->clear();
     $back->destroy();
