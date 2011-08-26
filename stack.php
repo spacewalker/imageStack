@@ -15,18 +15,19 @@ function imagickStack($images, $width = 300, $height = 200, $angle = 30)
     $items = count($images);
 
     for ($i = 0; $i < $items; $i++) {
-        $imagick = new Imagick();
-        $imagick->readImage($images[$i]);
-        $imagick->rotateImage(new ImagickPixel('none'), mt_rand(-$angle, $angle));
-        $imagick->scaleImage($width, $height, true);
-        $imagick->writeImage('final'.$i.'.png');
-        $imagick->clear();
-        $imagick->destroy();
+        $imagick[$i] = new Imagick();
+        $imagick[$i]->readImage($images[$i]);
+        $imagick[$i]->rotateImage(new ImagickPixel('none'), mt_rand(-$angle, $angle));
+        $imagick[$i]->scaleImage($width, $height, true);
+//        $imagick->writeImage('final'.$i.'.png');
+//        $imagick->clear();
+//        $imagick->destroy();
     }
 
     for ($i = 0; $i < $items-1; $i++) {
-        $images[$i] = new Imagick('final' . $i . '.png');
-        $images[$i+1] = new Imagick('final' . ($i+1) . '.png');
+
+        $images[$i] = $imagick[$i];
+        $images[$i+1] = $imagick[$i+1];
         $width = max($images[$i]->getImageWidth(), $images[$i+1]->getImageWidth());
         $height = max($images[$i]->getImageHeight(), $images[$i+1]->getImageHeight());
         $back = new Imagick();
@@ -49,12 +50,13 @@ function imagickStack($images, $width = 300, $height = 200, $angle = 30)
             ($height - $images[$i+1]->getImageHeight()) / 2
         );
 
-        $back->writeImage('final' . ($i+1) . '.png');
-        $back->clear();
-        $back->destroy();
+        $imagick[$i+1] = $back;
         $images[$i]->clear();
         $images[$i]->destroy();
     }
+    $back->writeImage('final.png');
+    $back->clear();
+    $back->destroy();
 
     return true;
 }
