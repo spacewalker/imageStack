@@ -17,17 +17,12 @@ function imagickStack($images, $width = 300, $height = 200, $angle = 30)
     for ($i = 0; $i < $items; $i++) {
         $imagick = new Imagick();
         $imagick->readImage($images[$i]);
-    //	$imagick->scaleImage(300,200,true);
         $imagick->rotateImage(new ImagickPixel('none'), mt_rand(-$angle, $angle));
         $imagick->scaleImage($width, $height, true);
         $imagick->writeImage('final'.$i.'.png');
         $imagick->clear();
         $imagick->destroy();
     }
-
-    //for ($i = 0; $i < 10; $i++) {
-    //	$image[$i] = new Imagick('final' . $i . '.png');
-    //}
 
     for ($i = 0; $i < $items-1; $i++) {
         $images[$i] = new Imagick('final' . $i . '.png');
@@ -78,5 +73,3 @@ $images = array(
     );
 
 imagickStack($images, 400, 300);
-
-?>
